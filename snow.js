@@ -27,13 +27,13 @@ class Snowflake {
     this.x = x;
     this.y = y;
     this.radius = Math.random() * 2 + 1;
-    this.vX = 0;
+    this.vX = 0.0;
     this.vY = Math.random() * 1 + 0.5; // Gentle downward drift
     this.opacity = Math.random() * 0.7 + 0.3;
     this.falling = true;
     this.minVY = Math.random() * 1 + 0.5; // Base falling speed
     this.minVX = Math.random() * 0.2 - 0.1; // Slight drift
-    this.isShaken = false; // Track if snowflake was recently shaken
+    this.isShaken = true; // Track if snowflake was recently shaken
 
     // Let's use colors in lieu of custom snowflake shapes for now
     if (Math.random() < 0.2) {
@@ -50,61 +50,59 @@ class Snowflake {
     }
   }
 
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height * 0.1; // Reappear near top
+    this.vX = this.minVX;
+    this.vY = this.minVY;
+    this.falling = true;
+    this.isShaken = false;
+  }
+  
   update() {
-    if (!this.falling) {
-      return;
-    }
+    if (!this.falling) return;
 
-    // Dampen velocities
-    const xdampening = 0.98;
-    const ydampening = 0.95;
-    this.vX *= xdampening;
-    
-    // For vertical movement, always add a slight downward
-    // acceleration This ensures snowflakes eventually fall down after
-    // being thrown upward.
-    
-    const gravity = 0.01;
+    const xdampening = 0.99; // Damp horizontal velocity slightly
+    const ydampening = 0.98; // Damp vertical velocity slightly
+    const gravity = 0.02; // Constant downward acceleration
+
+    // Apply gravity
     this.vY += gravity;
-    this.vY *= ydampening;
 
-    // Only apply minimum velocities if not recently shaken
-    if (!this.isShaken) {
-      if (Math.abs(this.vX) < Math.abs(this.minVX)) {
-	this.vX = this.minVX;
-      }
-      if (this.vY < this.minVY) {
-	this.vY = this.minVY;
-      }
-    }
-
-    // If velocities are close to minimums, return to natural falling state
-    if (Math.abs(this.vX - this.minVX) < 0.1) {
+    // Gradually reduce the "shaken" state
+    if (this.isShaken && Math.abs(this.vX - this.minVX) < 0.1 && this.vY > this.minVY) {
       this.isShaken = false;
     }
 
+    // Allow natural upward and downward motion
+    if (this.vY > this.minVY && !this.isShaken) {
+      // Enforce minimum downward velocity once vY > minVY
+      this.vY = Math.max(this.vY, this.minVY);
+    }
+
+    // Dampen velocities
+    this.vX *= xdampening;
+    this.vY *= ydampening;
+
+    // Update position
     this.x += this.vX;
     this.y += this.vY;
 
-    // If snow goes off the top, reappear near bottom
+    // Reset behavior if off the top
     if (this.y < 0) {
-      this.y = canvas.height * 0.8 + Math.random() * canvas.height * 0.1;
-      this.x = Math.random() * canvas.width;
+      this.reset(); // Reset snowflake to the top
     }
-    
+
     // Check for ground collision
     const groundLevel = groundHeight(this.x);
     if (this.y + this.radius >= canvas.height - groundLevel) {
       if (Math.random() > 0.3) {
+	// Stop the snowflake at the ground
 	this.falling = false;
 	this.y = canvas.height - groundLevel;
 	ground.push(this);
       } else {
-	this.y = 0;
-	this.x = Math.random() * canvas.width;
-	this.vX = this.minVX;
-	this.vY = this.minVY;
-	this.isShaken = false;
+	this.reset();
       }
     }
   }
@@ -160,30 +158,29 @@ function mouseVelocity(x, y, time) {
   };
 }
 
+function applyShakeVelocity(flake, scale, range) {
+  const randomX = (Math.random() * 2 - 1) * range;
+  const randomY = (Math.random() * 2 - 1) * range;
+  flake.vX = vX * scale + randomX;
+  flake.vY = vY * scale + randomY;
+  flake.isShaken = true;
+}
+
 function shookGlobe() {
   const velocityScale = 2;
   const randomRange = 0.5;
 
-  snowflakes.forEach(flake => {
-    const randomX = (Math.random() * 2 - 1) * randomRange;
-    const randomY = (Math.random() * 2 - 1) * randomRange;
+  ground.length = 0;
 
-    // FIXME there is duplicate logic below
-    if (flake.falling) {
-      flake.vX = vX * velocityScale + randomX;
-      flake.vY = vY * velocityScale + randomY;
-      flake.isShaken = true;
-    } else {
-      const index = ground.indexOf(flake);
-      if (index > -1) {
-        ground.splice(index, 1);
-      }
-      flake.falling = true;
-      flake.vX = vX * velocityScale + randomX;
-      flake.vY = vY * velocityScale + randomY;
-      flake.isShaken = true;
-    }
+  snowflakes.forEach(flake => {
+    flake.falling = true;
+    applyShakeVelocity(flake, velocityScale, randomRange);
   });
+  // Collect all snowflake vX properties in an array
+  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
+  
+  // Log the vX properties on a single line
+  // console.log(`Snowflake vX values: [${velocities.join(", ")}]`);
 }
 
 // Initialize snowflakes
@@ -229,6 +226,7 @@ document.addEventListener('mousemove', (event) => {
 
 document.addEventListener('mouseup', () => {
   isDragging = false;
+  console.log("mouseUp vX, vY: ", vX, vY);
   shookGlobe();
 });
 
@@ -238,6 +236,12 @@ function animate() {
   forest.forEach((tree) => {
     drawTree(tree.x, tree.y);
   });
+
+  // Collect all snowflake vX properties in an array
+//  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
+  
+  // Log the vX properties on a single line
+//  console.log(`Snowflake animate vX values: [${velocities.join(", ")}]`);
 
   snowflakes.forEach(flake => {
     flake.update();
