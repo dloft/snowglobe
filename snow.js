@@ -194,6 +194,7 @@ function initSnowflakes() {
 }
 
 function startDrag(event) {
+  event.preventDefault();
   const { x, y } = getEventCoordinates(event);
 
   isDragging = true;
@@ -218,15 +219,6 @@ function getEventCoordinates(event) {
   }
 }
 
-// Event handlers
-globeContainer.addEventListener('mousedown', (event) => {
-  startDrag(event);
-});
-
-globeContainer.addEventListener('touchstart', (event) => {
-  startDrag(event);
-});
-
 function drag(event) {
   if (isDragging) {
     // Update globe position
@@ -250,27 +242,22 @@ function drag(event) {
   }
 }
 
-document.addEventListener('mousemove', (event) => {
-  drag(event);
-});
-
-document.addEventListener('touchmove', (event) => {
-  drag(event);
-});
-
 function endDrag(event) {
+  event.preventDefault();
   isDragging = false;
   console.log("mouseUp vX, vY: ", vX, vY);
   shookGlobe();
 }			    
 
-document.addEventListener('mouseup', (event) => {
-  endDrag(event);
-});
+// Event handlers
+globeContainer.addEventListener('mousedown', startDrag);
+globeContainer.addEventListener('touchstart', startDrag);
 
-document.addEventListener('touchend', (event) => {
-  endDrag(event);
-});
+document.addEventListener('mousemove', drag);
+document.addEventListener('touchmove', drag);
+
+document.addEventListener('mouseup', endDrag);
+document.addEventListener('touchend', endDrag);
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
