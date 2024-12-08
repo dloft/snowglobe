@@ -193,41 +193,83 @@ function initSnowflakes() {
   }
 }
 
+function startDrag(event) {
+  const { x, y } = getEventCoordinates(event);
+
+  isDragging = true;
+  offsetX = x - globeContainer.offsetLeft;
+  offsetY = y - globeContainer.offsetTop;
+  lastX = x;
+  lastY = y;
+  lastTime = performance.now();
+}
+
+function getEventCoordinates(event) {
+  if (event.touches && event.touches.length > 0) {
+    return {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY,
+    };
+  } else {
+    return {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+}
+
 // Event handlers
 globeContainer.addEventListener('mousedown', (event) => {
-  isDragging = true;
-  offsetX = event.clientX - globeContainer.offsetLeft;
-  offsetY = event.clientY - globeContainer.offsetTop;
-  lastX = event.clientX;
-  lastY = event.clientY;
-  lastTime = performance.now();
+  startDrag(event);
 });
 
-document.addEventListener('mousemove', (event) => {
+globeContainer.addEventListener('touchstart', (event) => {
+  startDrag(event);
+});
+
+function drag(event) {
   if (isDragging) {
     // Update globe position
-    const left = event.clientX - offsetX;
-    const top = event.clientY - offsetY;
+    event.preventDefault();
+    const { x, y } = getEventCoordinates(event);
+    const left = x - offsetX;
+    const top = y - offsetY;
     globeContainer.style.left = `${left}px`;
     globeContainer.style.top = `${top}px`;
     
     // Calculate velocity
     const time = performance.now();
-    const { velocityX, velocityY } = mouseVelocity(event.clientX, event.clientY, time);
+    const { velocityX, velocityY } = mouseVelocity(x, y, time);
     vX = velocityX;
     vY = velocityY;
     
     // Update tracking variables
-    lastX = event.clientX;
-    lastY = event.clientY;
+    lastX = x;
+    lastY = y;
     lastTime = time;
   }
+}
+
+document.addEventListener('mousemove', (event) => {
+  drag(event);
 });
 
-document.addEventListener('mouseup', () => {
+document.addEventListener('touchmove', (event) => {
+  drag(event);
+});
+
+function endDrag(event) {
   isDragging = false;
   console.log("mouseUp vX, vY: ", vX, vY);
   shookGlobe();
+}			    
+
+document.addEventListener('mouseup', (event) => {
+  endDrag(event);
+});
+
+document.addEventListener('touchend', (event) => {
+  endDrag(event);
 });
 
 function animate() {
