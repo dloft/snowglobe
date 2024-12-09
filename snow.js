@@ -1,17 +1,14 @@
 const canvas = document.getElementById("snowCanvas");
-const ctx = canvas.getContext("2d");
-console.log("ctx: ", ctx);
 canvas.width = 300;
 canvas.height = 300;
-const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+const ctx = canvas.getContext("2d");
 const globeContainer = document.querySelector(".globe-container");
 const globeCenterX = canvas.width / 2;
 const globeCenterY = canvas.height / 2;
 const globeRadius = canvas.width / 2;
-let numSnowflakes = 100;
 
 // Global variables for tracking motion
-let isDragging = false;
+let numSnowflakes = 100;
 let offsetX = 0;
 let offsetY = 0;
 let lastX = 0;
@@ -19,9 +16,55 @@ let lastY = 0;
 let lastTime = 0;
 let vX = 0;
 let vY = 0;
+let isDragging = false;
 
 // Track accumulated snow
 const ground = [];
+
+function setup() {
+  // Event handlers
+  globeContainer.addEventListener('mousedown', startDrag);
+  globeContainer.addEventListener('touchstart', startDrag);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('touchmove', drag);
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+
+  // Set globe size: 1/3 of longest side of window
+  const globeElement = document.querySelector(".snow-globe");
+  let maxDim = Math.max(window.innerWidth, window.innerHeight)
+  globeElement.style.width = maxDim / 3 + "px";
+  globeElement.style.height = maxDim / 3 + "px";
+
+  initSnowflakes();
+}
+
+// Main loop
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "rgb(0 0 200 / 50%)";
+  ctx.fillRect(100, 100, 100, 100);
+
+  forest.forEach((tree) => {
+    drawTree(tree.x, tree.y);
+  });
+
+  // Collect all snowflake vX properties in an array
+//  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
+  
+  // Log the vX properties on a single line
+//  console.log(`Snowflake animate vX values: [${velocities.join(", ")}]`);
+
+  snowflakes.forEach(flake => {
+    flake.update();
+    flake.draw(ctx);
+  });
+  
+  drawGround();
+  
+  requestAnimationFrame(animate);
+}
 
 class Snowflake {
   constructor(x, y) {
@@ -194,18 +237,6 @@ function initSnowflakes() {
   }
 }
 
-function startDrag(event) {
-  event.preventDefault();
-  const { x, y } = getEventCoordinates(event);
-
-  isDragging = true;
-  offsetX = x - globeContainer.offsetLeft;
-  offsetY = y - globeContainer.offsetTop;
-  lastX = x;
-  lastY = y;
-  lastTime = performance.now();
-}
-
 function getEventCoordinates(event) {
   if (event.touches && event.touches.length > 0) {
     return {
@@ -218,6 +249,22 @@ function getEventCoordinates(event) {
       y: event.clientY,
     };
   }
+}
+
+//
+// Dragging
+//
+
+function startDrag(event) {
+  event.preventDefault();
+  const { x, y } = getEventCoordinates(event);
+
+  isDragging = true;
+  offsetX = x - globeContainer.offsetLeft;
+  offsetY = y - globeContainer.offsetTop;
+  lastX = x;
+  lastY = y;
+  lastTime = performance.now();
 }
 
 function drag(event) {
@@ -250,44 +297,7 @@ function endDrag(event) {
   shookGlobe();
 }			    
 
-// Event handlers
-globeContainer.addEventListener('mousedown', startDrag);
-globeContainer.addEventListener('touchstart', startDrag);
-
-document.addEventListener('mousemove', drag);
-document.addEventListener('touchmove', drag);
-
-document.addEventListener('mouseup', endDrag);
-document.addEventListener('touchend', endDrag);
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  forest.forEach((tree) => {
-    drawTree(tree.x, tree.y);
-  });
-
-  // Collect all snowflake vX properties in an array
-//  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
-  
-  // Log the vX properties on a single line
-//  console.log(`Snowflake animate vX values: [${velocities.join(", ")}]`);
-
-  snowflakes.forEach(flake => {
-    flake.update();
-    flake.draw(ctx);
-  });
-  
-  drawGround();
-  
-  requestAnimationFrame(animate);
-}
 
 // Start the simulation
-const globeElement = document.querySelector(".snow-globe");
-let maxDim = Math.max(window.innerWidth, window.innerHeight)
-globeElement.style.width = maxDim / 3 + "px";
-globeElement.style.height = maxDim / 3 + "px";
-
-initSnowflakes();
+setup()
 animate();
