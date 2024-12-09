@@ -150,3 +150,28 @@ function drawDetailedBridge() {
     ctx.stroke();
   }
 }
+
+function drawReflection() {
+  const gradient = ctx.createLinearGradient(
+    globeCenterX - globeRadius * 0.4, globeCenterY - globeRadius * 0.4,
+    globeCenterX + globeRadius * 0.4, globeCenterY + globeRadius * 0.4
+  );
+  
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 0)'); // Fully transparent at start
+  gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)'); // Bright white in middle
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)'); // Fully transparent at end
+
+  // Apply the gradient as a stroke style
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = globeRadius * 0.05; // Middle thickness
+  ctx.beginPath();
+  ctx.arc(
+    globeCenterX,
+    globeCenterY,
+    globeRadius * 0.9,
+    Math.PI * 1.5,   // Start angle
+    Math.PI * 0,     // End angle
+  );
+  ctx.stroke();
+}
+

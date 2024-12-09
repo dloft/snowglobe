@@ -43,6 +43,8 @@ function setup() {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  drawReflection();
+
   forest.forEach((tree) => {
     drawTree(tree.x, tree.y);
   });
@@ -294,7 +296,6 @@ function endDrag(event) {
   console.log("mouseUp vX, vY: ", vX, vY);
   shookGlobe();
 }
-
 
 // Start the simulation
 setup()
