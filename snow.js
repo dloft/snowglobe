@@ -43,9 +43,6 @@ function setup() {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgb(0 0 200 / 50%)";
-  ctx.fillRect(100, 100, 100, 100);
-
   forest.forEach((tree) => {
     drawTree(tree.x, tree.y);
   });
@@ -221,7 +218,7 @@ function shookGlobe() {
     applyShakeVelocity(flake, velocityScale, randomRange);
   });
   // Collect all snowflake vX properties in an array
-  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
+  // const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
   
   // Log the vX properties on a single line
   // console.log(`Snowflake vX values: [${velocities.join(", ")}]`);
@@ -276,13 +273,14 @@ function drag(event) {
     const top = y - offsetY;
     globeContainer.style.left = `${left}px`;
     globeContainer.style.top = `${top}px`;
-    
+
     // Calculate velocity
     const time = performance.now();
     const { velocityX, velocityY } = mouseVelocity(x, y, time);
     vX = velocityX;
     vY = velocityY;
-    
+    console.log('mouse vel=', vX, vY)
+
     // Update tracking variables
     lastX = x;
     lastY = y;
@@ -295,7 +293,7 @@ function endDrag(event) {
   isDragging = false;
   console.log("mouseUp vX, vY: ", vX, vY);
   shookGlobe();
-}			    
+}
 
 
 // Start the simulation
