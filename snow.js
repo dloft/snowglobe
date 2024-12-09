@@ -190,7 +190,7 @@ function drawGround() {
   });
 }
 
-function mouseVelocity(x, y, time) {
+function mouseVelocity_old(x, y, time) {
   const deltaX = x - lastX;
   const deltaY = y - lastY;
   const deltaTime = time - lastTime || 1;
@@ -198,6 +198,32 @@ function mouseVelocity(x, y, time) {
   return {
     velocityX: deltaX / deltaTime,
     velocityY: deltaY / deltaTime
+  };
+}
+
+let momentumX = 0;
+let momentumY = 0;
+const momentumDecay = 0.95; // How quickly the momentum fades (0.9 = slow fade)
+
+function mouseVelocityMomentum(x, y, time) {
+  const deltaX = x - lastX;
+  const deltaY = y - lastY;
+  const deltaTime = time - lastTime || 1;
+
+  const velocityX = deltaX / deltaTime;
+  const velocityY = deltaY / deltaTime;
+
+  // Attempt at momentum smoothing
+  momentumX = momentumDecay * momentumX + (1 - momentumDecay) * velocityX;
+  momentumY = momentumDecay * momentumY + (1 - momentumDecay) * velocityY;
+
+  lastX = x;
+  lastY = y;
+  lastTime = time;
+
+  return {
+    velocityX: momentumX,
+    velocityY: momentumY,
   };
 }
 
@@ -278,7 +304,7 @@ function drag(event) {
 
     // Calculate velocity
     const time = performance.now();
-    const { velocityX, velocityY } = mouseVelocity(x, y, time);
+    const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
     vX = velocityX;
     vY = velocityY;
     console.log('mouse vel=', vX, vY)
