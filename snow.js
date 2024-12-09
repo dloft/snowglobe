@@ -15,26 +15,6 @@ let vX = 0;
 let vY = 0;
 let isDragging = false;
 
-const snowflakeImages = {
-  "bowl": "bowl.png",
-  "flake": "flake.png",
-  "globe": "globe.png",
-  "iud": "iud.png",
-  "nut": "nut.png",
-  "pills": "pills.png",
-  "wheat": "wheat.png",
-};
-
-const params = new URLSearchParams(window.location.search);
-const customImageFile = "images/" + snowflakeImages[params.get('img') || 'bowl'];
-
-// Load the custom image
-const customImage = new Image();
-customImage.src = customImageFile;
-
-// Log for debugging
-console.log(`Custom image file: ${customImageFile}`);
-
 // Global configuration
 let numSnowflakes = 100;
 const groundRecycleRate = 0.3;
@@ -42,7 +22,6 @@ const xdamping = 0.99; // Damp horizontal velocity (1 = no damping)
 const ydamping = 0.98; // Damp vertical velocity
 const gravity = 0.02;  // Constant downward acceleration, so flakes shaken upwards fall back down
 
-// Track accumulated snow
 const ground = [];
 
 function setup() {
@@ -62,6 +41,27 @@ function setup() {
 
   initSnowflakes();
 }
+
+// Custom images for snowflakes
+function getSnowflakeImageFile() {
+  const snowflakeImages = {
+    "bowl": "bowl.png",
+    "flake": "flake.png",
+    "globe": "globe.png",
+    "iud": "iud.png",
+    "nut": "nut.png",
+    "pills": "pills.png",
+    "wheat": "wheat.png",
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const customImageFile = "images/" + snowflakeImages[params.get('img') || 'flake'];
+  console.log(`Using custom image: ${customImageFile}`);
+  return customImageFile;
+}
+
+const customImage = new Image();
+customImage.src = getSnowflakeImageFile();
 
 // Main loop
 function animate() {
@@ -167,6 +167,7 @@ class Snowflake {
 	this.y = canvas.height - groundLevel;
 	ground.push(this);
       } else {
+//	console.log("update reset: ", this)
 	this.reset();
       }
     }
@@ -337,7 +338,7 @@ function drag(event) {
     vX = velocityX;
     vY = velocityY;
 
-    console.log('mouse vel=', vX, vY)
+    // console.log('mouse vel=', vX, vY)
 
     // Update tracking variables
     lastX = x;
@@ -350,7 +351,12 @@ function drag(event) {
 function endDrag(event) {
   event.preventDefault();
   isDragging = false;
-  console.log("mouseUp vX, vY: ", vX, vY);
+  const time = performance.now();
+  const { x, y } = getEventCoordinates(event);
+  const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
+  vX = velocityX;
+  vY = velocityY;
+  console.log("mouseUp vX, vY", vX, vY);
   shookGlobe();
 }
 
