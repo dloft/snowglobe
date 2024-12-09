@@ -6,9 +6,6 @@ const globeContainer = document.querySelector(".globe-container");
 const globeCenterX = canvas.width / 2;
 const globeCenterY = canvas.height / 2;
 const globeRadius = canvas.width / 2;
-
-// Global variables for tracking motion
-let numSnowflakes = 100;
 let offsetX = 0;
 let offsetY = 0;
 let lastX = 0;
@@ -17,6 +14,13 @@ let lastTime = 0;
 let vX = 0;
 let vY = 0;
 let isDragging = false;
+
+// Global configuration
+let numSnowflakes = 100;
+const groundRecycleRate = 0.3;
+const xdamping = 0.99; // Damp horizontal velocity (1 = no damping)
+const ydamping = 0.98; // Damp vertical velocity
+const gravity = 0.02;  // Constant downward acceleration, so flakes shaken upwards fall back down
 
 // Track accumulated snow
 const ground = [];
@@ -105,10 +109,6 @@ class Snowflake {
   update() {
     if (!this.falling) return;
 
-    const xdampening = 0.99; // Damp horizontal velocity slightly
-    const ydampening = 0.98; // Damp vertical velocity slightly
-    const gravity = 0.02; // Constant downward acceleration
-
     // Apply gravity
     this.vY += gravity;
 
@@ -123,9 +123,9 @@ class Snowflake {
       this.vY = Math.max(this.vY, this.minVY);
     }
 
-    // Dampen velocities
-    this.vX *= xdampening;
-    this.vY *= ydampening;
+    // Damp velocities
+    this.vX *= xdamping;
+    this.vY *= ydamping;
 
     // Update position
     this.x += this.vX;
@@ -139,7 +139,7 @@ class Snowflake {
     // Check for ground collision
     const groundLevel = groundHeight(this.x);
     if (this.y + this.radius >= canvas.height - groundLevel) {
-      if (Math.random() > 0.3) {
+      if (Math.random() > groundRecycleRate) {
 	// Stop the snowflake at the ground
 	this.falling = false;
 	this.y = canvas.height - groundLevel;
@@ -245,10 +245,8 @@ function shookGlobe() {
     flake.falling = true;
     applyShakeVelocity(flake, velocityScale, randomRange);
   });
-  // Collect all snowflake vX properties in an array
-  // const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
-  
   // Log the vX properties on a single line
+  // const velocities = snowflakes.map(flake => flake.vX.toFixed(2));
   // console.log(`Snowflake vX values: [${velocities.join(", ")}]`);
 }
 
