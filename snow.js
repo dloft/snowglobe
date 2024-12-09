@@ -15,6 +15,26 @@ let vX = 0;
 let vY = 0;
 let isDragging = false;
 
+const snowflakeImages = {
+  "bowl": "bowl.png",
+  "flake": "flake.png",
+  "globe": "globe.png",
+  "iud": "iud.png",
+  "nut": "nut.png",
+  "pills": "pills.png",
+  "wheat": "wheat.png",
+};
+
+const params = new URLSearchParams(window.location.search);
+const customImageFile = "images/" + snowflakeImages[params.get('img') || 'bowl'];
+
+// Load the custom image
+const customImage = new Image();
+customImage.src = customImageFile;
+
+// Log for debugging
+console.log(`Custom image file: ${customImageFile}`);
+
 // Global configuration
 let numSnowflakes = 100;
 const groundRecycleRate = 0.3;
@@ -82,6 +102,8 @@ class Snowflake {
     this.minVX = Math.random() * 0.2 - 0.1; // Slight drift
     this.isShaken = true; // Track if snowflake was recently shaken
 
+    this.isCustomImage = Math.random() < 0.1; // 10% chance
+    
     // Let's use colors in lieu of custom snowflake shapes for now
     if (Math.random() < 0.2) {
       const colors = [
@@ -151,11 +173,20 @@ class Snowflake {
   }
 
   draw(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${this.color === 'white' ? '255, 255, 255' : this.color.slice(4, -1)}, ${this.opacity})`;
-    ctx.fill();
-    ctx.closePath();
+    if (this.isCustomImage && customImage.complete) {
+      // Draw the PNG image
+      const size = this.radius * 10; // Scale based on radius
+      ctx.globalAlpha = this.opacity; // Adjust transparency
+      ctx.drawImage(customImage, this.x - size / 2, this.y - size / 2, size, size);
+      ctx.globalAlpha = 1; // Reset transparency
+    } else {
+      // Draw as a standard snowflake
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+      ctx.fill();
+      ctx.closePath();
+    }
   }
 }
 
