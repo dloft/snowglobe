@@ -214,8 +214,8 @@ function mouseVelocityMomentum(x, y, time) {
   const velocityY = deltaY / deltaTime;
 
   // Attempt at momentum smoothing
-  momentumX = momentumDecay * momentumX + (1 - momentumDecay) * velocityX;
-  momentumY = momentumDecay * momentumY + (1 - momentumDecay) * velocityY;
+  momentumX = momentumDecay * momentumX + (1.1 - momentumDecay) * velocityX;
+  momentumY = momentumDecay * momentumY + (1.1 - momentumDecay) * velocityY;
 
   lastX = x;
   lastY = y;
