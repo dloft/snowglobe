@@ -305,12 +305,14 @@ function drag(event) {
     const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
     vX = velocityX;
     vY = velocityY;
+
     console.log('mouse vel=', vX, vY)
 
     // Update tracking variables
     lastX = x;
     lastY = y;
     lastTime = time;
+    shookGlobe();
   }
 }
 
@@ -321,6 +323,49 @@ function endDrag(event) {
   shookGlobe();
 }
 
+let audioContext;
+let gainNode;
+let windSound;
+
+function initializeAudio() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode = audioContext.createGain();
+    windSound = new Audio('wind.m4a'); // Replace with your wind sound file
+    windSound.loop = true;
+
+    // Connect the wind sound to the AudioContext
+    const audioSource = audioContext.createMediaElementSource(windSound);
+    audioSource.connect(gainNode).connect(audioContext.destination);
+
+    // Set initial volume
+    gainNode.gain.value = 100;
+
+    console.log('AudioContext initialized');
+  }
+
+  // Resume AudioContext if suspended
+  if (audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+      console.log('AudioContext resumed');
+      windSound.play(); // Start playing the wind sound
+    });
+  }
+}
+
+// Attach a user gesture to initialize audio
+document.addEventListener('click', initializeAudio, { once: true });
+document.addEventListener('touchstart', initializeAudio, { once: true });
+
+// Function to adjust wind volume based on velocity
+function updateWindSound(volume) {
+  if (gainNode) {
+    gainNode.gain.value = Math.min(volume, 1); // Clamp volume between 0 and 1
+  }
+}
+
 // Start the simulation
 setup()
 animate();
+
+
