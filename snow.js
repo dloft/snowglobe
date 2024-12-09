@@ -1,8 +1,8 @@
 const canvas = document.getElementById("snowCanvas");
 const ctx = canvas.getContext("2d");
 console.log("ctx: ", ctx);
-//canvas.width = 300;
-//canvas.height = 300;
+canvas.width = 300;
+canvas.height = 300;
 const size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
 const globeContainer = document.querySelector(".globe-container");
 const globeCenterX = canvas.width / 2;
@@ -262,7 +262,7 @@ document.addEventListener('touchend', endDrag);
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
   forest.forEach((tree) => {
     drawTree(tree.x, tree.y);
   });
@@ -285,9 +285,9 @@ function animate() {
 
 // Start the simulation
 const globeElement = document.querySelector(".snow-globe");
-let maxDim = Math.max(canvas.clientWidth, canvas.clientHeight);
-console.log("maxDim: ", maxDim);
-globeElement.style.width = maxDim + "px";
-globeElement.style.height = maxDim + "px";
+let maxDim = Math.max(window.innerWidth, window.innerHeight)
+globeElement.style.width = maxDim / 3 + "px";
+globeElement.style.height = maxDim / 3 + "px";
+
 initSnowflakes();
 animate();
