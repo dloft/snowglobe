@@ -21,6 +21,7 @@ const groundRecycleRate = 0.3;
 const xdamping = 0.99; // Damp horizontal velocity (1 = no damping)
 const ydamping = 0.98; // Damp vertical velocity
 const gravity = 0.02;  // Constant downward acceleration, so flakes shaken upwards fall back down
+const windForce = 0.2;
 
 const ground = [];
 
@@ -133,6 +134,9 @@ class Snowflake {
 
     // Apply gravity
     this.vY += gravity;
+
+    // Apply wind
+    this.vX += windForce * (Math.random() - 0.5);
 
     // Gradually reduce the "shaken" state
     if (this.isShaken && Math.abs(this.vX - this.minVX) < 0.1 && this.vY > this.minVY) {
