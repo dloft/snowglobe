@@ -10,8 +10,8 @@ body {
 
 .snow-globe {
   position: relative;
-  width: 300px;
-  height: 300px;
+/*  width: 300px;
+  height: 300px; */
   border-radius: 50%;
   background: radial-gradient(circle at center, #ffffff, #222222);
   overflow: hidden;
@@ -45,8 +45,8 @@ canvas {
 }
 
 .globe-container {
-  position: absolute;
-  cursor: grab; /* Hand cursor for dragging */
+    position: absolute;
+    cursor: grab; /* Hand cursor for dragging */
 }
 
 .globe-container:active {
