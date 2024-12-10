@@ -26,25 +26,6 @@ const resetYPct = 0.5; // How high in the snowglobe flakes should reappear on re
 
 const ground = [];
 
-let grabSound;
-
-function setup() {
-  // Event handlers
-  globeContainer.addEventListener('mousedown', startDrag);
-  globeContainer.addEventListener('touchstart', startDrag);
-  document.addEventListener('mousemove', drag);
-  document.addEventListener('touchmove', drag);
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
-
-  // Set globe size: 1/3 of longest side of window
-  const globeElement = document.querySelector(".snow-globe");
-  let maxDim = Math.max(window.innerWidth, window.innerHeight)
-  globeElement.style.width = maxDim / 3 + "px";
-  globeElement.style.height = maxDim / 3 + "px";
-
-  initSnowflakes();
-}
 
 // Custom images for snowflakes
 function getSnowflakeImageFile() {
@@ -242,6 +223,7 @@ function mouseVelocity_old(x, y, time) {
   };
 }
 
+
 let momentumX = 0;
 let momentumY = 0;
 const momentumDecay = 0.95; // How quickly the momentum fades (0.9 = slow fade)
@@ -315,7 +297,7 @@ function getEventCoordinates(event) {
 }
 
 //
-// Dragging
+//      Dragging
 //
 
 function startDrag(event) {
@@ -362,25 +344,45 @@ function endDrag(event) {
   shookGlobe();
 }
 
+//
+//      Sound
+//
 let audioContext;
 let gainNode;
 let windSound;
+let grabSound;
 
+// Return a random element from array
+function choice(array) { return array[Math.floor(Math.random() * array.length)] }
 
-/*
- * */
 async function playGrabSound() {
-  console.log('playGrabSound()', audioContext.baseLatency)
-
   if (!audioContext) return
 
-  console.log('grabSound=', grabSound)
   let source = audioContext.createBufferSource();
-  source.buffer = grabSound;
+  soundKey = choice(['gurgle-1.mp3', 'gurgle-2.mp3', 'gurgle-3.mp3'])
+  console.log('soundKey=', soundKey)
+
+  source.buffer = sounds[soundKey];
+  console.log('source.buffer=', source.buffer)
   source.connect( audioContext.destination );
   source.start();
 }
 
+const sounds = {
+  'gurgle-1.mp3': null,
+  'gurgle-2.mp3': null,
+  'gurgle-3.mp3': null,
+}
+async function loadSounds() {
+  Object.keys(sounds).forEach( soundFilename => {
+    url = `./sounds/${soundFilename}`
+    console.log('loading', url)
+    fetch(url)
+      .then(res => res.arrayBuffer())
+      .then(ArrayBuffer => audioContext.decodeAudioData(ArrayBuffer))
+      .then(audioData => sounds[soundFilename] = audioData)
+  })
+}
 
 function initializeAudio() {
   if (!audioContext) {
@@ -398,10 +400,7 @@ function initializeAudio() {
 
     console.log('AudioContext initialized');
 
-    fetch('./sounds/gurgle-1.mp3')
-      .then(res => res.arrayBuffer())
-      .then(ArrayBuffer => audioContext.decodeAudioData(ArrayBuffer))
-      .then(audioData => grabSound = audioData)
+    loadSounds()
   }
 
   // Resume AudioContext if suspended
@@ -413,10 +412,6 @@ function initializeAudio() {
   }
 }
 
-// Attach a user gesture to initialize audio
-document.addEventListener('click', initializeAudio, { once: true });
-document.addEventListener('touchstart', initializeAudio, { once: true });
-
 // Function to adjust wind volume based on velocity
 function updateWindSound(volume) {
   if (gainNode) {
@@ -424,8 +419,28 @@ function updateWindSound(volume) {
   }
 }
 
+function setup() {
+  // Event handlers
+  globeContainer.addEventListener('mousedown', startDrag);
+  globeContainer.addEventListener('touchstart', startDrag);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('touchmove', drag);
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+
+  // Attach a user gesture to initialize audio
+  document.addEventListener('click', initializeAudio, { once: true });
+  document.addEventListener('touchstart', initializeAudio, { once: true });
+
+  // Set globe size: 1/3 of longest side of window
+  const globeElement = document.querySelector(".snow-globe");
+  let maxDim = Math.max(window.innerWidth, window.innerHeight)
+  globeElement.style.width = maxDim * 0.4 + "px";
+  globeElement.style.height = maxDim * 0.4 + "px";
+
+  initSnowflakes();
+}
+
 // Start the simulation
 setup()
 animate();
-
-
