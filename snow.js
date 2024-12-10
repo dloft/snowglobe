@@ -351,17 +351,23 @@ function endDrag(event) {
 let audioContext;
 let gainNode;
 let windSound;
-let grabSound;
 
 // Return a random element from array
 function choice(array) { return array[Math.floor(Math.random() * array.length)] }
 
-async function playGrabSound() {
+function playGrabSound() {
   if (!audioContext) return
 
   let source = audioContext.createBufferSource();
   soundKey = choice(['gurgle-1.mp3', 'gurgle-2.mp3', 'gurgle-3.mp3'])
+  play(soundKey)
+}
 
+// soundKey = key in 'sounds' hash
+function play(soundKey) {
+  if (!audioContext) return
+
+  let source = audioContext.createBufferSource();
   source.buffer = sounds[soundKey];
   source.connect( audioContext.destination );
   source.start();
