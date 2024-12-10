@@ -4,12 +4,19 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  /* background: radial-gradient(circle at center, #f2e6fc, #2a5298); */
-  background: linear-gradient(to bottom, #f2e6fc, #2a5298);
-/*  background: #888;*/
   color: white;
+  background: linear-gradient(to bottom, #f2e6fc, #2a5298);
+  background-image: url('images/backgroundmobile.jpg');
+  background-position: top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @media (min-width: 525px) {
+    background-image: url('images/backgrounddesktop.jpg');
+    background-size: contain;
+    background-position: center;
+  }
 }
-/*  */
+
 .snow-globe {
   position: relative;
   border-radius: 50%;
@@ -45,8 +52,8 @@ canvas {
 }
 
 .globe-container {
-    position: absolute;
-    cursor: grab; /* Hand cursor for dragging */
+  position: absolute;
+  cursor: grab; /* Hand cursor for dragging */
 }
 
 .globe-container:active {

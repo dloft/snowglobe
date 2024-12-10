@@ -42,7 +42,7 @@ function getSnowflakeImageFile() {
 
   const params = new URLSearchParams(window.location.search);
   const customImageFile = "images/" + snowflakeImages[params.get('img') || 'flake'];
-  console.log(`Using custom image: ${customImageFile}`);
+  // console.log(`Using custom image: ${customImageFile}`);
   return customImageFile;
 }
 
@@ -361,10 +361,8 @@ async function playGrabSound() {
 
   let source = audioContext.createBufferSource();
   soundKey = choice(['gurgle-1.mp3', 'gurgle-2.mp3', 'gurgle-3.mp3'])
-  console.log('soundKey=', soundKey)
 
   source.buffer = sounds[soundKey];
-  console.log('source.buffer=', source.buffer)
   source.connect( audioContext.destination );
   source.start();
 }
@@ -377,7 +375,6 @@ const sounds = {
 async function loadSounds() {
   Object.keys(sounds).forEach( soundFilename => {
     url = `./sounds/${soundFilename}`
-    console.log('loading', url)
     fetch(url)
       .then(res => res.arrayBuffer())
       .then(ArrayBuffer => audioContext.decodeAudioData(ArrayBuffer))
@@ -399,7 +396,7 @@ function initializeAudio() {
     // Set initial volume
     gainNode.gain.value = 1;
 
-    console.log('AudioContext initialized');
+    // console.log('AudioContext initialized');
 
     loadSounds()
   }
@@ -407,7 +404,7 @@ function initializeAudio() {
   // Resume AudioContext if suspended
   if (audioContext.state === 'suspended') {
     audioContext.resume().then(() => {
-      console.log('AudioContext resumed');
+      // console.log('AudioContext resumed');
       windSound.play(); // Start playing the wind sound
     });
   }
@@ -436,8 +433,9 @@ function setup() {
   // Set globe size: 1/3 of longest side of window
   const globeElement = document.querySelector(".snow-globe");
   let maxDim = Math.max(window.innerWidth, window.innerHeight)
-  globeElement.style.width = maxDim * 0.4 + "px";
-  globeElement.style.height = maxDim * 0.4 + "px";
+  const GLOBE_SIZE = 0.35
+  globeElement.style.width = maxDim * GLOBE_SIZE + "px";
+  globeElement.style.height = maxDim * GLOBE_SIZE + "px";
 
   initSnowflakes();
 }
