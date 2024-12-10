@@ -22,6 +22,7 @@ const xdamping = 0.99; // Damp horizontal velocity (1 = no damping)
 const ydamping = 0.98; // Damp vertical velocity
 const gravity = 0.02;  // Constant downward acceleration, so flakes shaken upwards fall back down
 const windForce = 0.2;
+const resetYPct = 0.5; // How high in the snowglobe flakes should reappear on reset
 
 const ground = [];
 
@@ -122,7 +123,7 @@ class Snowflake {
 
   reset() {
     this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height * 0.1; // Reappear near top
+    this.y = Math.random() * canvas.height * resetYPct; // Reappear near top
     this.vX = this.minVX;
     this.vY = this.minVY;
     this.falling = true;
@@ -130,6 +131,8 @@ class Snowflake {
   }
   
   update() {
+    // enable to allow recycling of fallen snowflakes
+    //    if (!this.falling && Math.random() < 0.999) return;
     if (!this.falling) return;
 
     // Apply gravity

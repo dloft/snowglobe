@@ -4,10 +4,12 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #888;
+  /* background: radial-gradient(circle at center, #f2e6fc, #2a5298); */
+  background: linear-gradient(to bottom, #f2e6fc, #2a5298);
+/*  background: #888;*/
   color: white;
 }
-
+/*  */
 .snow-globe {
   position: relative;
   border-radius: 50%;
