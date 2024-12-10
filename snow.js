@@ -256,7 +256,6 @@ function mouseVelocityMomentum(x, y, time) {
   lastX = x;
   lastY = y;
   lastTime = time;
-
   return {
     velocityX: momentumX,
     velocityY: momentumY,
@@ -355,12 +354,6 @@ function drag(event) {
 function endDrag(event) {
   event.preventDefault();
   isDragging = false;
-  const time = performance.now();
-  const { x, y } = getEventCoordinates(event);
-  const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
-  vX = velocityX;
-  vY = velocityY;
-  console.log("mouseUp vX, vY", vX, vY);
   shookGlobe();
 }
 
@@ -380,7 +373,7 @@ function initializeAudio() {
     audioSource.connect(gainNode).connect(audioContext.destination);
 
     // Set initial volume
-    gainNode.gain.value = 100;
+    gainNode.gain.value = 1;
 
     console.log('AudioContext initialized');
   }
