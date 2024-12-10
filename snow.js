@@ -1,3 +1,6 @@
+const RAD_TO_DEG = 180.0 / Math.PI
+const TAU = Math.PI * 2 // 360 deg in Radians
+
 const canvas = document.getElementById("snowCanvas");
 canvas.width = 300;
 canvas.height = 300;
@@ -13,6 +16,8 @@ let lastY = 0;
 let lastTime = 0;
 let vX = 0;
 let vY = 0;
+let lastVx = 0;
+let lastVy = 0;
 let isDragging = false;
 
 // Global configuration
@@ -328,6 +333,8 @@ function drag(event) {
     // Calculate velocity
     const time = performance.now();
     const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
+    lastVx = vX
+    lastVy = vY
     vX = velocityX;
     vY = velocityY;
 
@@ -335,7 +342,9 @@ function drag(event) {
     lastX = x;
     lastY = y;
     lastTime = time;
+
     shookGlobe();
+    directionChangeSound(vX, vY, lastVx, lastVy)
   }
 }
 
@@ -355,14 +364,6 @@ let windSound;
 // Return a random element from array
 function choice(array) { return array[Math.floor(Math.random() * array.length)] }
 
-function playGrabSound() {
-  if (!audioContext) return
-
-  let source = audioContext.createBufferSource();
-  soundKey = choice(['gurgle-1.mp3', 'gurgle-2.mp3', 'gurgle-3.mp3'])
-  play(soundKey)
-}
-
 // soundKey = key in 'sounds' hash
 function play(soundKey) {
   if (!audioContext) return
@@ -373,10 +374,30 @@ function play(soundKey) {
   source.start();
 }
 
+function playGrabSound() {
+  if (!audioContext) return
+
+  let source = audioContext.createBufferSource();
+  soundKey = choice(['gurgle-1.mp3', 'gurgle-2.mp3', 'gurgle-3.mp3'])
+  play(soundKey)
+}
+
+// Play a sound when the direction of the globe changes drastically
+function directionChangeSound(vX, vY, lastVx, lastVy) {
+  angleRad = Math.atan2(vX, vY)
+  lastAngleRad = Math.atan2(lastVx, lastVy)
+  const deltaAngleRad = (Math.abs(lastAngleRad - angleRad) + TAU) % TAU
+  // When velocity changes more than 180deg:
+  if (deltaAngleRad > (Math.PI / 2)) {
+    play('gurgle-1.mp3')
+  }
+}
+
 const sounds = {
   'gurgle-1.mp3': null,
   'gurgle-2.mp3': null,
   'gurgle-3.mp3': null,
+  'glass-ting.mp3': null,
 }
 async function loadSounds() {
   Object.keys(sounds).forEach( soundFilename => {
@@ -421,6 +442,11 @@ function updateWindSound(volume) {
   if (gainNode) {
     gainNode.gain.value = Math.min(volume, 1); // Clamp volume between 0 and 1
   }
+}
+
+function round(f, precisionDigits) {
+  const factor = Math.pow(10, precisionDigits)
+  return Math.round(f * factor) / factor
 }
 
 function setup() {
