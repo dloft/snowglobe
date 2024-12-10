@@ -37,6 +37,7 @@ function getSnowflakeImageFile() {
     "nut": "nut.png",
     "pills": "pills.png",
     "wheat": "wheat.png",
+    "moose": "moose.png",
   };
 
   const params = new URLSearchParams(window.location.search);
