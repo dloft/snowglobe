@@ -26,6 +26,8 @@ const resetYPct = 0.5; // How high in the snowglobe flakes should reappear on re
 
 const ground = [];
 
+let grabSound;
+
 function setup() {
   // Event handlers
   globeContainer.addEventListener('mousedown', startDrag);
@@ -326,6 +328,8 @@ function startDrag(event) {
   lastX = x;
   lastY = y;
   lastTime = performance.now();
+
+  playGrabSound()
 }
 
 function drag(event) {
@@ -343,8 +347,6 @@ function drag(event) {
     const { velocityX, velocityY } = mouseVelocityMomentum(x, y, time);
     vX = velocityX;
     vY = velocityY;
-
-    // console.log('mouse vel=', vX, vY)
 
     // Update tracking variables
     lastX = x;
@@ -364,6 +366,22 @@ let audioContext;
 let gainNode;
 let windSound;
 
+
+/*
+ * */
+async function playGrabSound() {
+  console.log('playGrabSound()', audioContext.baseLatency)
+
+  if (!audioContext) return
+
+  console.log('grabSound=', grabSound)
+  let source = audioContext.createBufferSource();
+  source.buffer = grabSound;
+  source.connect( audioContext.destination );
+  source.start();
+}
+
+
 function initializeAudio() {
   if (!audioContext) {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -379,6 +397,11 @@ function initializeAudio() {
     gainNode.gain.value = 1;
 
     console.log('AudioContext initialized');
+
+    fetch('./sounds/gurgle-1.mp3')
+      .then(res => res.arrayBuffer())
+      .then(ArrayBuffer => audioContext.decodeAudioData(ArrayBuffer))
+      .then(audioData => grabSound = audioData)
   }
 
   // Resume AudioContext if suspended
