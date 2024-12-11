@@ -60,9 +60,9 @@ function animate() {
 
   drawReflection();
 
-  forest.forEach((tree) => {
-    drawTree(tree.x, tree.y);
-  });
+  // forest.forEach((tree) => {
+  //   drawTree(tree.x, tree.y);
+  // });
 
   // Collect all snowflake vX properties in an array
 //  const velocities = snowflakes.map(flake => flake.vX.toFixed(2));

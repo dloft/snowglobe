@@ -17,10 +17,35 @@ body {
   }
 }
 
+/* // <uniquifier>: Use a unique and descriptive class name */
+/* // <weight>: Use a value from 300 to 800 */
+
+.parkinsans-bold {
+  font-family: "Parkinsans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+#banner {
+  position: absolute;
+  top: 15vh;
+  @media (min-width: 525px) {
+    top: 35vh;
+  }
+}
+
+h1, h2 {
+  color: red;
+  text-align: center;
+}
+
 .snow-globe {
   position: relative;
   border-radius: 50%;
   background: radial-gradient(circle at center, rgba(255 255 255 / 70%), rgba(255 255 255 / 0%));
+  background-image: url("images/bridge.png");
+  background-size: cover;
   overflow: hidden;
   box-shadow:
     inset 0 0 20px rgba(0, 0, 0, 0.5),
